@@ -1,0 +1,321 @@
+[[https://github.com/BnMcGn/lisp-guide][Source repository]]
+
+* [[http://bnmcgn.github.io/lisp-guide/lisp-exploration.html][Common Lisp REPL Exploration Guide]]
+
+Emacs/Slime edition
+
+** Glossary
+
+ - symbol :: A name. Like a variable, but can be used without an attached value.
+
+ - system :: A library
+
+ - package :: A module, more fine-grained than a system. Systems often contain multiple packages.
+
+ - (at) point :: Emacs will often apply commands to the item under the cursor. This item is said to be at point.
+
+ - M- :: A reference to the /meta/ modifier key. This is usually the Alt key on PCs and the command key on Macs.
+
+ - repl :: The interactive prompt of a live lisp session.
+
+ - quicklisp, alias ql :: Common Lisp's de facto package manager.
+
+** Starting and Stopping Lisp
+
+*** Start lisp from within emacs
+
+#+BEGIN_EXAMPLE
+    M-x slime
+#+END_EXAMPLE
+
+*** Stop the lisp repl in emacs
+
+#+BEGIN_EXAMPLE
+    > ,quit
+#+END_EXAMPLE
+
+*** Restart the lisp repl in emacs
+
+#+BEGIN_EXAMPLE
+    > ,restart-inferior-lisp
+#+END_EXAMPLE
+
+** Surroundings
+
+*** List of available functions
+
+[???]
+
+*** Last three items in result history (most recent first)
+
+#+BEGIN_EXAMPLE
+    > *
+    > **
+    > ***
+#+END_EXAMPLE
+
+*** Last three items in command history (most recent first)
+
+#+BEGIN_EXAMPLE
+    > +
+    > ++
+    > +++
+#+END_EXAMPLE
+
+*** Cycle though command history (previous, next item)
+
+#+BEGIN_EXAMPLE
+    M-p
+    M-n
+#+END_EXAMPLE
+
+*** Search command history for things that start with /search/
+
+#+BEGIN_EXAMPLE
+    > search M-p
+#+END_EXAMPLE
+
+** Available Packages & Quicklisp
+
+*** List all loaded packages
+
+#+BEGIN_SRC lisp
+    (list-all-packages)
+#+END_SRC
+
+*** List all packages imported into a package
+
+#+BEGIN_EXAMPLE
+    > (package-use-list (find-package 'package))
+#+END_EXAMPLE
+
+*** List of all available systems in the quicklisp repository
+
+#+BEGIN_EXAMPLE
+    > (ql:system-list)
+#+END_EXAMPLE
+
+*** Search the list of systems
+
+#+BEGIN_EXAMPLE
+    > (ql:system-apropos search)
+#+END_EXAMPLE
+
+*** Install and load a system
+
+#+BEGIN_SRC lisp
+    (ql:quickload 'system)
+#+END_SRC
+
+*** Contents of a loaded package
+
+#+BEGIN_EXAMPLE
+    > package:<tab>
+#+END_EXAMPLE
+
+*** Contents of a package, including internal symbols
+
+#+BEGIN_EXAMPLE
+    > package::<tab>
+#+END_EXAMPLE
+
+** Symbols and Objects
+
+*** Is symbol in use?
+
+#+BEGIN_SRC lisp
+    (boundp 'var)
+#+END_SRC
+
+*** Is symbol used in the function namespace?
+
+#+BEGIN_SRC lisp
+    (fboundp 'var)
+#+END_SRC
+
+*** List all of the symbols in the current namespace
+
+#+BEGIN_SRC lisp
+    (apropos "" *package*)
+#+END_SRC
+
+*** Originating package of a symbol
+
+#+BEGIN_SRC lisp
+    (symbol-package 'var)
+#+END_SRC
+
+*** Search for /thing/ in the symbol list (with optional package specifier)
+
+#+BEGIN_SRC lisp
+    (apropos "thing" 'package)
+#+END_SRC
+
+*** Docstring
+
+#+BEGIN_SRC lisp
+    (describe var) ; or C-c C-d d on point
+#+END_SRC
+
+*** Type of an object
+
+#+BEGIN_SRC lisp
+    (type-of var)
+#+END_SRC
+
+*** Object inspector
+
+#+BEGIN_SRC lisp
+    (inspect var)
+#+END_SRC
+
+*** Inheritance tree for a class
+
+#+BEGIN_EXAMPLE
+    M-x slime-browse-classes
+#+END_EXAMPLE
+
+*** List methods specializing on a class
+
+#+BEGIN_EXAMPLE
+    M-x slime-who-specializes
+#+END_EXAMPLE
+
+** Paths, locations, config files
+
+*** Lisp executable location
+
+#+BEGIN_EXAMPLE
+    M-: inferior-lisp-program
+#+END_EXAMPLE
+
+*** Version and variety of Common Lisp
+
+#+BEGIN_SRC lisp
+    (lisp-implementation-version)
+    (lisp-implementation-type)
+#+END_SRC
+
+*** Operating system and machine info
+
+#+BEGIN_SRC lisp
+    (software-version)
+    (machine-version)
+#+END_SRC
+
+*** Show the recommended folder for your projects
+
+#+BEGIN_SRC lisp
+    ql:*local-project-directories*
+#+END_SRC
+
+*** Location of a specific system
+
+#+BEGIN_SRC lisp
+    (ql:where-is-system 'system)
+#+END_SRC
+
+*** Name of start up configuration file for your lisp
+
+#+BEGIN_SRC lisp
+    (ql-impl-util::init-file-name-for (lisp-implementation-type))
+#+END_SRC
+
+** Code navigation
+
+*** Jump to the definition of the item at point
+
+#+BEGIN_EXAMPLE
+    M-.
+#+END_EXAMPLE
+
+*** Return from jump
+
+#+BEGIN_EXAMPLE
+    M-,
+#+END_EXAMPLE
+
+*** List callers of a function
+
+#+BEGIN_EXAMPLE
+    C-c <
+#+END_EXAMPLE
+
+*** List functions that a function calls (callees)
+
+#+BEGIN_EXAMPLE
+    C-c >
+#+END_EXAMPLE
+
+*** Show the references, bindings or assignments of the global variable at point
+
+#+BEGIN_EXAMPLE
+    C-c C-w r
+    C-c C-w b
+    C-c C-w s
+#+END_EXAMPLE
+
+*** Look up documentation for the symbol at point in the Common Lisp Hyperspec
+
+#+BEGIN_EXAMPLE
+    C-c C-d h
+#+END_EXAMPLE
+
+Note: only for symbols defined in the Common Lisp standard
+
+** Macros
+
+*** Examine a macro expansion
+
+Given the following loop macro invocation:
+
+#+BEGIN_SRC lisp
+    (loop for i from 1 to 3 do (print i))
+#+END_SRC
+
+This will show the expansion:
+
+#+BEGIN_SRC lisp
+    (macroexpand-1 '(loop for i from 1 to 3 do (print i)))
+#+END_SRC
+
+*** Explore the currently available reader macros
+
+#+BEGIN_SRC lisp
+    (inspect *readtable*)
+#+END_SRC
+
+Note: not user friendly
+
+** Crashes and errors
+
+*** Stop a running task
+
+#+BEGIN_EXAMPLE
+    C-c C-c
+#+END_EXAMPLE
+
+*** Getting back to normal from the debugger
+
+#+BEGIN_EXAMPLE
+    q - or select [Abort]
+#+END_EXAMPLE
+
+\\
+
+Copyright 2016 Ben McGunigle
+
+* Org Colophon 						   :ARCHIVE:noexport:
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:t tex:t num:1
+#+CREATOR: <a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.4.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)
+#+HTML_CONTAINER: div
+#+HTML_DOCTYPE: html5
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+INFOJS_OPT:
+#+LATEX_HEADER:
